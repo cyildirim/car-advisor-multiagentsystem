@@ -4,18 +4,26 @@ Combines MOT history data with the car listing description to surface issues.
 """
 from google.adk.agents import Agent
 from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
-import google.auth.transport.requests
-import google.oauth2.id_token
+from google.adk.agents.callback_context import CallbackContext
+from google.adk.models import LlmRequest
 import os
+import time
 from dotenv import load_dotenv
+import requests as http_requests
+import google.auth
+import google.oauth2.id_token
 
 # Load environment variables
 load_dotenv()
+mcp_server_url = os.getenv("MOT_MCP_STREAMABLE")
 
-def get_id_token(url: str) -> str:
-    """Fetch identity token for Cloud Run IAM auth."""
-    auth_req = google.auth.transport.requests.Request()
-    return google.oauth2.id_token.fetch_id_token(auth_req, url)
+def get_id_token():
+    """Get an ID token to authenticate with the MCP server."""
+    target_url = os.getenv("MOT_MCP_STREAMABLE")
+    audience = target_url.split('/mcp/')[0]
+    request = google.auth.transport.requests.Request()
+    id_token = google.oauth2.id_token.fetch_id_token(request, audience)
+    return id_token
 
 # This agent consumes the MOT MCP server via explicitly defined tool wrappers
 mot_agent = Agent(
@@ -52,9 +60,9 @@ Provide a structured summary with:
   tools=[
       McpToolset(
           connection_params=StreamableHTTPConnectionParams(
-              url=os.getenv("MOT_MCP_STREAMABLE"),
+              url=mcp_server_url,
               headers={
-                    "Authorization": f"Bearer {get_id_token(os.getenv('MOT_MCP_STREAMABLE'))}"
+                    "Authorization": f"Bearer {get_id_token()}"
                 }
           ),
           errlog=None,  # You can provide a logger here

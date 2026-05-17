@@ -135,6 +135,7 @@ def deploy_to_agent_engine():
             "MOT_MCP_STREAMABLE": os.getenv("MOT_MCP_STREAMABLE"),
             "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gemini-2.5-flash")
         },
+        service_account=os.getenv("SERVICE_ACCOUNT")
     )
 
     # Store resource name before updates (it may change after update calls)
