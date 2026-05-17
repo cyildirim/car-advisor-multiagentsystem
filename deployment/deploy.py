@@ -32,11 +32,11 @@ load_dotenv()
 # Add agents directory to Python path to match runtime layout
 # (both adk web and deployed environment treat agents as top-level modules)
 project_root = Path(__file__).parent.parent
-agents_dir = project_root / "agents"
-sys.path.insert(0, str(agents_dir))
+# agents_dir = project_root / "agents"
+# sys.path.insert(0, str(agents_dir))
 sys.path.insert(0, str(project_root))  # Also add project root for 'common' package
 
-from orchestrator_agent.agent import root_agent
+# from agents.orchestrator_agent.agent import root_agent
 
 # =============================================================================
 # CONFIGURATION - Loaded from environment variables
@@ -85,9 +85,12 @@ def deploy_to_agent_engine():
     print("\n" + "=" * 60)
     print("DEPLOYING TO VERTEX AI AGENT ENGINE")
     print("=" * 60)
+    
 
     init_vertex_ai()
 
+    from agents.orchestrator_agent.agent import root_agent
+    
     # Initialize Vertex AI client (needed for update call)
     client = vertexai.Client(project=PROJECT_ID, location=LOCATION)
 
@@ -95,7 +98,7 @@ def deploy_to_agent_engine():
     # Memory Bank will be enabled via update() after deployment
     adk_app = agent_engines.AdkApp(
         agent=root_agent,
-        app_name="content_creation",  # CRITICAL: Required for Memory Bank scope
+        app_name="car_advisor",  # CRITICAL: Required for Memory Bank scope
         plugins=[LoggingPlugin()],  # Enable comprehensive observability logging
     )
 
@@ -116,7 +119,8 @@ def deploy_to_agent_engine():
             "numpy>=1.24.0",
             "vertexai>=1.38.0",
             "python-dotenv>=1.0.0",
-
+            "google-auth",
+            "google-auth-httplib2"
         ],
         extra_packages=["agents", "common"],
         display_name=DISPLAY_NAME,
@@ -127,8 +131,9 @@ def deploy_to_agent_engine():
             # Capture prompt/response as span events so they appear in the
             # Cloud Trace UI's span detail panel.
             "ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS": "true",
-            "GOOGLE_GENAI_USE_VERTEXAI": "true", 
-
+            "GOOGLE_GENAI_USE_VERTEXAI": "true",
+            "MOT_MCP_STREAMABLE": os.getenv("MOT_MCP_STREAMABLE"),
+            "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gemini-2.5-flash")
         },
     )
 

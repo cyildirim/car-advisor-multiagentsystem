@@ -12,8 +12,8 @@ from google.adk.agents import Agent, SequentialAgent
 from google.genai import types
 # ── Sub-agent imports ────────────────────────────────────────────────────────
 # When adk web runs, agents/ is on sys.path, so import as top-level modules
-from mot_agent.agent import mot_agent
-from comparison_agent.comparison_agent import comparison_agent
+from agents.mot_agent.agent import mot_agent
+from agents.comparison_agent.comparison_agent import comparison_agent
 from .callbacks import after_agent_callback
 
 
@@ -106,7 +106,8 @@ orchestrator_agent = Agent(
    #  generate_content_config=GENERATE_CONTENT_CONFIG,
     instruction=SYSTEM_PROMPT,
     sub_agents=[car_research_workflow],
-    after_agent_callback=after_agent_callback
+    # Callback removed for deployment - causes deepcopy issues
+    # after_agent_callback=after_agent_callback
    )
 
 

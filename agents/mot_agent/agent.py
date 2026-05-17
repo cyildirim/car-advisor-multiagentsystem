@@ -4,11 +4,18 @@ Combines MOT history data with the car listing description to surface issues.
 """
 from google.adk.agents import Agent
 from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
+import google.auth.transport.requests
+import google.oauth2.id_token
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+def get_id_token(url: str) -> str:
+    """Fetch identity token for Cloud Run IAM auth."""
+    auth_req = google.auth.transport.requests.Request()
+    return google.oauth2.id_token.fetch_id_token(auth_req, url)
 
 # This agent consumes the MOT MCP server via explicitly defined tool wrappers
 mot_agent = Agent(
@@ -19,12 +26,12 @@ mot_agent = Agent(
 You are a vehicle inspection expert and used car risk analyst for the UK market.
 
 When you receive a car registration number:
-1. ALWAYS retrieve get_mot_history(registration) tool with the registration plate dont use summarise_mot_risks tool
+1. ALWAYS call get_mot_history(registration) tool with the registration plate
 2. Wait for the tool response before proceeding
 3. Analyze the MOT history data returned by the tool
 
 Available tools:
-- get_mot_history: Gets full MOT test history with all details takes a registration plate as input
+- get_mot_history: Gets full MOT test history with all details. Takes a registration plate as input.
 
 ## Your Analysis Should Include:
 
@@ -45,8 +52,12 @@ Provide a structured summary with:
   tools=[
       McpToolset(
           connection_params=StreamableHTTPConnectionParams(
-              url=os.getenv("MOT_MCP_STREAMABLE", "http://127.0.0.1:8080/mcp")
-          )
+              url=os.getenv("MOT_MCP_STREAMABLE"),
+              headers={
+                    "Authorization": f"Bearer {get_id_token(os.getenv('MOT_MCP_STREAMABLE'))}"
+                }
+          ),
+          errlog=None,  # You can provide a logger here
       )
   ],
   output_key='mot_analysis'
