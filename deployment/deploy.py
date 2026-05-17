@@ -95,7 +95,7 @@ def deploy_to_agent_engine():
     # Memory Bank will be enabled via update() after deployment
     adk_app = agent_engines.AdkApp(
         agent=root_agent,
-        app_name="content_creation",  # CRITICAL: Required for Memory Bank scope
+        app_name="car_advisor",  # CRITICAL: Required for Memory Bank scope
         plugins=[LoggingPlugin()],  # Enable comprehensive observability logging
     )
 

@@ -96,3 +96,11 @@ Another follow up peugeot 3008
 I have another car LF65DLE  Fuel type: Petrol Gearbox:Manual £3450 72,950 miles. Seller description:Peugeot 3008 Manual , Panoramic Sunroof Fresh Full year MOT with no advisories This Euro 6 ULEZ-compliant vehicle. It boasts a full-service history and has recently been fully serviced, including spark plugs, oil, and all filters, brake discs and pads. A smooth-operating engine and gearbox, Bluetooth, USB, and DAB/FM/AM radio, Automatic handbrake, parking sensors, camera, heated seats, Climate control
 
 ```
+
+## Deployment
+
+Agent Deployment
+
+```
+  python3 deployment/deploy.py --action deploy 
+```
